@@ -1,4 +1,4 @@
-#VERSION: 1.2.0
+#VERSION: 1.3.0
 FROM ubuntu:18.04
 
 RUN apt-get update \
@@ -67,6 +67,11 @@ RUN curl -OL http://mirrors.kernel.org/ubuntu/pool/main/g/gcc-6/libgcj17_6.4.0-8
         && apt-get autoremove -y \
         && apt-get clean \
         && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN cd /tmp \
+  && curl http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz --output ioncube_loaders_lin_x86-64.tar.gz \
+  && tar xfz ioncube_loaders_lin_*.gz \
+  && mv /tmp/ioncube /usr/local/ioncube
 
 WORKDIR /srv/app
 
