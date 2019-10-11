@@ -8,16 +8,12 @@ use App\Support\Console\Cli;
 use App\Support\Console\ConsoleWriter;
 use App\Support\Console\ServerBag;
 use App\Support\Contracts\Cli as CliContract;
-use App\Support\Contracts\ImageSetRepository as ImageSetRepositoryContract;
-use App\Support\FilePublisher;
-use App\Support\Images\ImageSetRepository;
 use App\Support\Images\Organiser\Organiser;
 use App\Support\Mechanics\ChooseMechanic;
 use App\Support\Mechanics\Mechanic;
 use App\Support\Ssl\CertificateBuilder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
-use LaravelZero\Framework\Application;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,9 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        view()->getFinder()->prependLocation(app(PorterLibrary::class)->viewsPath());
-
-        $this->app[ImageSetRepositoryContract::class]->registerViewNamespaces($this->app);
+        app(PorterLibrary::class)->registerViews($this->app);
     }
 
     /**
@@ -49,27 +43,16 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(CliContract::class, Cli::class);
 
-        $this->app->bind(ImageSetRepositoryContract::class, function () {
-            return new ImageSetRepository([
-                resource_path('image_sets'),
-                app(PorterLibrary::class)->dockerImagesPath(),
-            ]);
-        });
-
         $this->app->bind(Organiser::class, function () {
             return new Organiser(
-                app(Porter::class)->getDockerImageSet(),
+                app(PorterLibrary::class)->getDockerImageSet(),
                 app(CliContract::class),
                 app(FileSystem::class)
             );
         });
 
         $this->app->singleton(Porter::class);
-
-        $this->app->singleton(PorterLibrary::class, function (Application $app) {
-            return new PorterLibrary($app->make(FilePublisher::class), $app->make(Mechanic::class), config('porter.library_path'));
-        });
-
+        $this->app->singleton(PorterLibrary::class);
         $this->app->singleton(ServerBag::class);
 
         $this->app->bind(Mechanic::class, function () {

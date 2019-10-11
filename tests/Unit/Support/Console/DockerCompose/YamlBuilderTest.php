@@ -28,7 +28,7 @@ class YamlBuilderTest extends BaseTestCase
         $this->files = \Mockery::mock(Filesystem::class);
         $this->lib = \Mockery::mock(PorterLibrary::class);
         $this->images = new ImageRepository(resource_path('image_sets/konsulting/porter-ubuntu'));
-        $this->builder = new YamlBuilder($this->files, $this->lib);
+        $this->builder = new YamlBuilder($this->lib);
     }
 
     /** @test */
@@ -95,6 +95,7 @@ class YamlBuilderTest extends BaseTestCase
     {
         $this->lib->shouldReceive('path')->twice()->andReturn('pathtodotporter');
         $this->lib->shouldReceive('dockerComposeFile')->once()->andReturn('docker-compose.yaml');
+        $this->lib->shouldReceive('getFileSystem')->once()->andReturn($this->files);
 
         $content = $this->builder->renderDockerComposeFile($this->images);
         $this->files->shouldReceive('put')->with('docker-compose.yaml', $content)->once();
@@ -106,6 +107,7 @@ class YamlBuilderTest extends BaseTestCase
     public function it_will_remove_the_file()
     {
         $this->lib->shouldReceive('dockerComposeFile')->once()->andReturn('docker-compose.yaml');
+        $this->lib->shouldReceive('getFileSystem')->once()->andReturn($this->files);
 
         $this->files->shouldReceive('delete')->with('docker-compose.yaml')->once();
 

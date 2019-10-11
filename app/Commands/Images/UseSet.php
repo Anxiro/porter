@@ -27,10 +27,11 @@ class UseSet extends BaseCommand
      * Execute the console command.
      *
      * @return void
+     * @throws \Exception
      */
     public function handle(): void
     {
-        $current = $this->porter->getDockerImageSet()->getName();
+        $current = $this->porterLibrary->getDockerImageSet()->getName();
 
         if ($this->option('show')) {
             $this->info('The current image set is: '.$current);

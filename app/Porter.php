@@ -13,13 +13,6 @@ use App\Support\Contracts\ImageSetRepository;
 class Porter
 {
     /**
-     * The docker images sets used by Porter to serve sites.
-     *
-     * @var ImageSetRepository
-     */
-    protected $imageSets;
-
-    /**
      * The CLI class that executes commands.
      *
      * @var Cli
@@ -41,20 +34,27 @@ class Porter
     protected $yamlBuilder;
 
     /**
+     * The PorterLibrary
+     *
+     * @var PorterLibrary
+     */
+    protected $library;
+
+    /**
      * Porter constructor.
      *
-     * @param ImageSetRepository $imageSets
-     * @param Cli                $cli
-     * @param CliCommandFactory  $commandFactory
-     * @param YamlBuilder        $yamlBuilder
+     * @param  PorterLibrary      $library
+     * @param  Cli                $cli
+     * @param  CliCommandFactory  $commandFactory
+     * @param  YamlBuilder        $yamlBuilder
      */
     public function __construct(
-        ImageSetRepository $imageSets,
+        PorterLibrary $library,
         Cli $cli,
         CliCommandFactory $commandFactory,
         YamlBuilder $yamlBuilder
     ) {
-        $this->imageSets = $imageSets;
+        $this->library = $library;
         $this->cli = $cli;
         $this->dockerCompose = $commandFactory;
         $this->yamlBuilder = $yamlBuilder;
@@ -77,7 +77,7 @@ class Porter
      */
     public function compose()
     {
-        $this->yamlBuilder->build($this->getDockerImageSet());
+        $this->yamlBuilder->build($this->library->getDockerImageSet());
     }
 
     /**
@@ -194,18 +194,6 @@ class Porter
     public function build()
     {
         $this->dockerCompose->command('build')->perform();
-    }
-
-    /**
-     * Get the current image set to use.
-     *
-     * @return ImageRepository
-     */
-    public function getDockerImageSet()
-    {
-        return $this->imageSets->getImageRepository(
-            setting('docker_image_set', config('porter.default-docker-image-set'))
-        );
     }
 
     /**

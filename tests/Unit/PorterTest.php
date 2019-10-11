@@ -31,12 +31,10 @@ class PorterTest extends BaseTestCase
         $this->cli = \Mockery::mock(Cli::class);
 
         $this->porter = new Porter(
-            new ImageSetRepository([
-                resource_path('image_sets'),
-            ]),
+            app(PorterLibrary::class),
             $this->cli,
             new CliCommandFactory($this->cli),
-            new YamlBuilder(new Filesystem(), app(PorterLibrary::class))
+            new YamlBuilder(app(PorterLibrary::class))
         );
         $this->composeFile = app(PorterLibrary::class)->dockerComposeFile();
     }
